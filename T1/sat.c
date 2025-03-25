@@ -2,81 +2,82 @@
 #include <stdio.h>
 #include "sat.h"
 
-// Structure to pass arguments to the thread function
+// Structure to pass data to each thread
 typedef struct {
-    int x[20];     // Reduced to n <= 20 to fit stack
-    int start_i;   // Starting index after fixed prefix
-    int n;         // Total number of variables
-    BoolFun f;     // Boolean function to evaluate
-    int result;    // Store the result of this thread
-} ThreadArg;
+    int k;          // Thread identifier (0 to 2^p - 1)
+    int n;          // Total number of variables
+    int p;          // Number of variables to fix (log2 of thread count)
+    BoolFun f;      // Boolean function to evaluate
+    int* resultado; // Pointer to where the thread writes its result
+} ThreadData;
 
-// Recursive function to count true evaluations sequentially
-static int gen(int x[], int i, int n, BoolFun f) {
+// Recursive function to generate combinations and count true evaluations
+int gen(int x[], int i, int n, BoolFun f)
+{
     if (i == n) {
-        return f(x);  // Base case: evaluate f
+        return f(x); // Base case: evaluate f(x) when all variables are set
+    } else {
+        int cnt = 0;
+        x[i] = 0;
+        cnt += gen(x, i + 1, n, f); // Set x[i] to 0 and recurse
+        x[i] = 1;
+        cnt += gen(x, i + 1, n, f); // Set x[i] to 1 and recurse
+        return cnt;
     }
-    int count = 0;
-    x[i] = 0;
-    count += gen(x, i + 1, n, f);
-    x[i] = 1;
-    count += gen(x, i + 1, n, f);
-    return count;
 }
 
 // Thread function to process a subset of combinations
-void* thread_gen(void* arg) {
-    ThreadArg* t_arg = (ThreadArg*)arg;
-    t_arg->result = gen(t_arg->x, t_arg->start_i, t_arg->n, t_arg->f);
-    pthread_exit(NULL);
-}
+void* thread_func(void* arg)
+{
+    ThreadData* data = (ThreadData*)arg;
+    int k = data->k;
+    int n = data->n;
+    int p = data->p;
+    BoolFun f = data->f;
+    int* resultado = data->resultado;
+    int x[n]; // Each thread has its own copy of x
 
-// Main function to count true evaluations using 2^p threads
-int recuento(int n, BoolFun f, int p) {
-    if (p >= n) p = n;  // Limit p to n
-    if (p > 3) p = 3;   // Cap at 2^3 = 8 threads to avoid stack overflow
-    int num_threads = 1 << p;
-
-    // Pre-allocate on stack, reduced to 8 threads max
-    int x_arrays[8][20];       // 8 threads, n <= 20
-    ThreadArg args[8];         // 8 thread arguments
-    pthread_t threads[8];      // 8 thread handles
-
-    // Check bounds
-    if (n > 20 || p > 3) {
-        fprintf(stderr, "n > 20 or p > 3 not supported without malloc\n");
-        return -1;
+    // Set the first p variables based on k's binary representation
+    for (int i = 0; i < p; i++) {
+        x[i] = (k >> i) & 1;
     }
 
-    // Initialize each thread's x array with a unique p-bit prefix
-    for (int t = 0; t < num_threads; t++) {
-        for (int i = 0; i < p; i++) {
-            x_arrays[t][i] = (t >> (p - 1 - i)) & 1;
-        }
-        for (int i = p; i < n; i++) {
-            x_arrays[t][i] = 0;
-        }
+    // Count true evaluations for remaining variables
+    int cnt = gen(x, p, n, f);
+    *resultado = cnt; // Store result in designated location
+    return NULL;
+}
 
-        // Set up thread arguments
-        for (int i = 0; i < n; i++) {
-            args[t].x[i] = x_arrays[t][i];
-        }
-        args[t].start_i = p;
-        args[t].n = n;
-        args[t].f = f;
+// Main function to compute the count using 2^p threads
+int recuento(int n, BoolFun f, int p)
+{
+    int num_threads = 1 << p; // 2^p threads
+    pthread_t threads[num_threads];
+    ThreadData data[num_threads];
+    int resultados[num_threads];
 
-        if (pthread_create(&threads[t], NULL, thread_gen, &args[t]) != 0) {
-            perror("pthread_create failed");
-            return -1;
+    // Initialize and launch threads
+    for (int k = 0; k < num_threads; k++) {
+        data[k].k = k;
+        data[k].n = n;
+        data[k].p = p;
+        data[k].f = f;
+        data[k].resultado = &resultados[k];
+        if (num_threads == 1) {
+            // For p = 0, run directly to avoid thread overhead
+            thread_func(&data[k]);
+        } else {
+            pthread_create(&threads[k], NULL, thread_func, &data[k]);
         }
     }
 
     // Collect results
-    int total_count = 0;
-    for (int t = 0; t < num_threads; t++) {
-        pthread_join(threads[t], NULL);
-        total_count += args[t].result;
+    int total = 0;
+    for (int k = 0; k < num_threads; k++) {
+        if (num_threads > 1) {
+            pthread_join(threads[k], NULL); // Wait for thread to finish
+        }
+        total += resultados[k];
     }
-
-    return total_count;
+    return total;
 }
