@@ -1,0 +1,110 @@
+Sistema operativo utilizado
+Linux debian12 6.1.0-31-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.128-1 (2025-02-07) x86_64 GNU/Linux
+==== run-san ====
+gcc -g -DSAN=1 -fsanitize=address -fsanitize=undefined -Wall -Werror -pedantic -std=c18 -Wno-unused-function  test-sat.c sat.c -lm -o sat.bin-san
+./sat.bin-san
+Calculando recuento secuencial de f4
+Calculando recuento paralelo de f4 usando 1 threads
+Threads usados: 1
+Calculando recuento paralelo de f4 usando 2 threads
+Threads usados: 2
+Calculando recuento paralelo de f4 usando 4 threads
+Threads usados: 4
+Calculando recuento paralelo de f4 usando 8 threads
+Threads usados: 8
+Calculando recuento paralelo de f4 usando 16 threads
+Threads usados: 16
+Recuento paralelo de f4 es correcto
+
+Calculando recuento secuencial para f_big
+~6 segundos en mi PC (Debian 12 Mate, Ryzen 5 3550H)
+Debe probar su tarea en una maquina desocupada con al menos 2 cores
+recuento secuencial para f_big: 440507292 (16389 milisegs.)
+Intento 1 de 1
+Calculando recuento paralelo para f_big usando 2 threads
+recuento paralelo para f_big: 440507292 (9620 milisegs.)
+Factor de mejora aprobado: 1.703638
+
+
+Felicitaciones: su tarea satisface el enunciado de la tarea
+==== run-thr ====
+gcc -g -DSAN=1 -fsanitize=thread -Wall -Werror -pedantic -std=c18 -Wno-unused-function  test-sat.c sat.c -lm -o sat.bin-thr
+./sat.bin-thr
+Calculando recuento secuencial de f4
+Calculando recuento paralelo de f4 usando 1 threads
+Threads usados: 1
+Calculando recuento paralelo de f4 usando 2 threads
+Threads usados: 2
+Calculando recuento paralelo de f4 usando 4 threads
+Threads usados: 4
+Calculando recuento paralelo de f4 usando 8 threads
+Threads usados: 8
+Calculando recuento paralelo de f4 usando 16 threads
+Threads usados: 16
+Recuento paralelo de f4 es correcto
+
+Calculando recuento secuencial para f_big
+~6 segundos en mi PC (Debian 12 Mate, Ryzen 5 3550H)
+Debe probar su tarea en una maquina desocupada con al menos 2 cores
+recuento secuencial para f_big: 440507292 (52681 milisegs.)
+Intento 1 de 1
+Calculando recuento paralelo para f_big usando 2 threads
+recuento paralelo para f_big: 440507292 (35088 milisegs.)
+Factor de mejora aprobado: 1.501396
+
+
+Felicitaciones: su tarea satisface el enunciado de la tarea
+==== run-g ====
+gcc -g -Wall -Werror -pedantic -std=c18 -Wno-unused-function  test-sat.c sat.c -lm -o sat.bin-g
+./sat.bin-g
+Calculando recuento secuencial de f4
+Calculando recuento paralelo de f4 usando 1 threads
+Threads usados: 1
+Calculando recuento paralelo de f4 usando 2 threads
+Threads usados: 2
+Calculando recuento paralelo de f4 usando 4 threads
+Threads usados: 4
+Calculando recuento paralelo de f4 usando 8 threads
+Threads usados: 8
+Calculando recuento paralelo de f4 usando 16 threads
+Threads usados: 16
+Recuento paralelo de f4 es correcto
+
+Calculando recuento secuencial para f_big
+~6 segundos en mi PC (Debian 12 Mate, Ryzen 5 3550H)
+Debe probar su tarea en una maquina desocupada con al menos 2 cores
+recuento secuencial para f_big: 440507292 (5456 milisegs.)
+Intento 1 de 1
+Calculando recuento paralelo para f_big usando 2 threads
+recuento paralelo para f_big: 440507292 (3195 milisegs.)
+Factor de mejora aprobado: 1.707668
+
+
+Felicitaciones: su tarea satisface el enunciado de la tarea
+==== run ====
+gcc -O -DOPT=1 -Wall -Werror -pedantic -std=c18 -Wno-unused-function  test-sat.c sat.c -lm -o sat.bin
+./sat.bin
+Calculando recuento secuencial de f4
+Calculando recuento paralelo de f4 usando 1 threads
+Threads usados: 1
+Calculando recuento paralelo de f4 usando 2 threads
+Threads usados: 2
+Calculando recuento paralelo de f4 usando 4 threads
+Threads usados: 4
+Calculando recuento paralelo de f4 usando 8 threads
+Threads usados: 8
+Calculando recuento paralelo de f4 usando 16 threads
+Threads usados: 16
+Recuento paralelo de f4 es correcto
+
+Calculando recuento secuencial para f_big
+~6 segundos en mi PC (Debian 12 Mate, Ryzen 5 3550H)
+Debe probar su tarea en una maquina desocupada con al menos 2 cores
+recuento secuencial para f_big: 440507292 (4095 milisegs.)
+Intento 1 de 5
+Calculando recuento paralelo para f_big usando 2 threads
+recuento paralelo para f_big: 440507292 (2222 milisegs.)
+Factor de mejora aprobado: 1.842934
+
+
+Felicitaciones: su tarea satisface el enunciado de la tarea
