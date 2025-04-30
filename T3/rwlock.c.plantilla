@@ -1,0 +1,40 @@
+#define _XOPEN_SOURCE 500
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdint.h>
+#include <pthread.h>
+
+#include "pss.h"
+#include "rwlock.h"
+
+struct rwlock {
+  ... defina aca los campos que necesita para el tipo RWLock ...
+};
+
+... defina aca otros tipos que necesite ...
+
+RWLock *makeRWLock() {
+  ...
+}
+
+void destroyRWLock(RWLock *rwl) {
+  ...
+}
+
+void enterRead(RWLock *rwl) {
+  ...
+}
+
+void exitRead(RWLock *rwl) {
+  ...
+}
+
+void enterWrite(RWLock *rwl) {
+  ...
+}
+
+void exitWrite(RWLock *rwl) {
+  ...
+}
